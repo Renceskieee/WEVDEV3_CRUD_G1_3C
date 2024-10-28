@@ -85,47 +85,54 @@ app.post('/login', (req, res) => {
     });
 });
 
-app.get('/data', (req, res) => {
-    const query = `SELECT * FROM items`;
+// Get all documents
+app.get('/document_table', (req, res) => {
+    const query = 'SELECT * FROM document_table';
     db.query(query, (err, result) => {
-      if (err) return res.status(500).send(err);
-      res.status(200).send(result);
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result);
     });
 });
 
-app.get('/items', (req, res) => {
-    const query = 'SELECT * FROM items';
-    db.query(query, (err, result) => {
-      if (err) return res.status(500).send(err);
-      res.status(200).send(result);
-    });
-});
+// Add new document
+app.post('/document_table', (req, res) => {
+  const { document_code, title, description, type_id, created_by, current_handler } = req.body;
 
-app.post('/items', (req, res) => {
-  const { name, lastname } = req.body;
-  const query = 'INSERT INTO items (name, lastname) VALUES (?, ?)';
-  db.query(query, [name, lastname], (err, result) => {
-    if (err) return res.status(500).send(err);
-    res.status(201).send({ message: 'Item created', id: result.insertId });
+  // Check for required fields
+  if (!document_code || !title || !description || !type_id || !created_by || !current_handler) {
+      return res.status(400).send({ error: 'Missing required fields' });
+  }
+
+  const query = 'INSERT INTO document_table (document_code, title, description, type_id, created_by, current_handler) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(query, [document_code, title, description, type_id, created_by, current_handler], (err, result) => {
+      if (err) {
+          console.error('SQL Error:', err);  // Log the error
+          return res.status(500).send({ error: 'Internal server error' });
+      }
+      res.status(201).send({ message: 'Document created', id: result.insertId });
   });
 });
 
-app.put('/items/:id', (req, res) => {
-  const { name, lastname } = req.body;
+// Update document
+app.put('/document_table/:id', (req, res) => {
+  const { document_code, title, description, type_id, created_by, current_handler, current_status, priority } = req.body;
   const { id } = req.params;
-  const query = 'UPDATE items SET name = ?, lastname = ? WHERE id = ?';
-  db.query(query, [name, lastname, id], (err, result) => {
+
+  const query = 'UPDATE document_table SET document_code = ?, title = ?, description = ?, type_id = ?, created_by = ?, current_handler = ?, current_status = ?, priority = ? WHERE id = ?';
+  
+  db.query(query, [document_code, title, description, type_id, created_by, current_handler, current_status, priority, id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: 'Item updated' });
+    res.status(200).send({ message: 'Document updated' });
   });
 });
 
-app.delete('/items/:id', (req, res) => {
+// Delete document
+app.delete('/document_table/:id', (req, res) => {
     const { id } = req.params;
-    const query = 'DELETE FROM items WHERE id = ?';
+    const query = 'DELETE FROM document_table WHERE id = ?';
     db.query(query, [id], (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: 'Item deleted' });
+      res.status(200).send({ message: 'Document deleted' });
     });
 });
 

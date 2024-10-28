@@ -1,123 +1,213 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField, Container } from '@mui/material';
-import { useNavigate } from 'react-router-dom';  // Assuming you are using react-router for navigation
 
 const Dashboard = () => {
-    const [data, setData] = useState([]);   // To hold items data
-    const [newItem, setNewItem] = useState('');  // To hold input for new item
+    const [data, setData] = useState([]);
+    const [newDocumentCode, setNewDocumentCode] = useState('');
+    const [newTitle, setNewTitle] = useState('');
+    const [newDescription, setNewDescription] = useState('');
+    const [newTypeId, setNewTypeId] = useState('');
+    const [newCreatedBy, setNewCreatedBy] = useState('');
+    const [newCurrentHandler, setNewCurrentHandler] = useState('');
+    const [editDocument, setEditDocument] = useState(null);
 
-    const [newItem2, setNewItem2] = useState('');  // To hold input for new last name
-
-    const [editItem, setEditItem] = useState(null);  // To hold item being edited
-    const navigate = useNavigate();  // Hook for navigating to different routes
-
-    // Fetch all items on component mount
     useEffect(() => {
-        fetchItems();
+        fetchDocuments();
     }, []);
 
-    const fetchItems = async () => {
-        const response = await axios.get('http://localhost:5000/items');
+    const fetchDocuments = async () => {
+        const response = await axios.get('http://localhost:5000/document_table');
         setData(response.data);
     };
 
-    // Add new item
-    const addItem = async () => {
-        if (newItem.trim() === '' || newItem2.trim() === '') return;
-        await axios.post('http://localhost:5000/items', { name: newItem, lastname: newItem2 });
-        setNewItem('');
-        setNewItem2('');
-        fetchItems();
+    const addDocument = async () => {
+        if (newDocumentCode.trim() === '' || newTitle.trim() === '' || newTypeId.trim() === '' || newCreatedBy.trim() === '' || newCurrentHandler.trim() === '') {
+            return;
+        }
+
+        await axios.post('http://localhost:5000/document_table', {
+            document_code: newDocumentCode,
+            title: newTitle,
+            description: newDescription,
+            type_id: newTypeId,
+            created_by: newCreatedBy,
+            current_handler: newCurrentHandler
+        });
+
+        setNewDocumentCode('');
+        setNewTitle('');
+        setNewDescription('');
+        setNewTypeId('');
+        setNewCreatedBy('');
+        setNewCurrentHandler('');
+        fetchDocuments();
     };
 
-    // Update item
-    const updateItem = async () => {
-        if (!editItem || editItem.name.trim() === '' || editItem.lastname.trim() === '') return;
-        await axios.put(`http://localhost:5000/items/${editItem.id}`, { name: editItem.name, lastname: editItem.lastname });
-        setEditItem(null);
-        fetchItems();
+    const updateDocument = async () => {
+        if (!editDocument || editDocument.document_code.trim() === '' || editDocument.title.trim() === '') return;
+
+        await axios.put(`http://localhost:5000/document_table/${editDocument.id}`, {
+            document_code: editDocument.document_code,
+            title: editDocument.title,
+            description: editDocument.description,
+            type_id: editDocument.type_id,
+            created_by: editDocument.created_by,
+            current_handler: editDocument.current_handler,
+            current_status: editDocument.current_status,
+            priority: editDocument.priority
+        });
+
+        setEditDocument(null);
+        fetchDocuments();
     };
 
-    // Delete item
-    const deleteItem = async (id) => {
-        await axios.delete(`http://localhost:5000/items/${id}`);
-        fetchItems();
-    };
-
-    // Handle Logout
-    const handleLogout = () => {
-        // Clear authentication (for example, token)
-        localStorage.removeItem('authToken');  // Assuming the token is stored in localStorage
-        navigate('/login');  // Redirect to login page after logout
+    const deleteDocument = async (id) => {
+        await axios.delete(`http://localhost:5000/document_table/${id}`);
+        fetchDocuments();
     };
 
     return (
         <Container>
-        <h1>Dashboard</h1>
-
-        {/* Logout Button */}
-        <Button onClick={handleLogout} variant="contained" color="secondary" style={{ float: 'right' }}>
-            Logout
-        </Button>
-      
-        {/* Add New Item */}
-        <div>
-            <TextField label="First Name" value={newItem} onChange={(e) => setNewItem(e.target.value)} />
-            <TextField label="Last Name" value={newItem2} onChange={(e) => setNewItem2(e.target.value)} />
-            <Button onClick={addItem} variant="contained" color="primary">Add</Button>
-        </div>
-
-        {/* Items Table */}
-        <Table>
-            <TableHead>
-                <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Last Name</TableCell>
-                    <TableCell>Actions</TableCell>
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                {data.map(item => (
-                    <TableRow key={item.id}>
-                        <TableCell>{item.id}</TableCell>
-                        <TableCell>
-                            {/* Editable field */}
-                            {editItem && editItem.id === item.id ? (
-                                <TextField
-                                    value={editItem.name}
-                                    onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
-                                />
-                            ) : (
-                                item.name
-                            )}
-                        </TableCell>
+            <h1>Document Table Dashboard</h1>
                 
-                            {/* cell for the last name */}    
-                            <TableCell>
-                                {/* Editable field */}
-                                {editItem && editItem.id === item.id ? (
+            <div style={{ marginBottom: '20px' }}>
+                <TextField
+                    label="Document Code"
+                    value={newDocumentCode}
+                    onChange={(e) => setNewDocumentCode(e.target.value)}
+                    sx={{ marginBottom: '10px', width: '100%' }}
+                />
+                <TextField
+                    label="Title"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    sx={{ marginBottom: '10px', width: '100%' }}
+                />
+                <TextField
+                    label="Description"
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                    sx={{ marginBottom: '10px', width: '100%' }}
+                />
+                <TextField
+                    label="Type ID"
+                    value={newTypeId}
+                    onChange={(e) => setNewTypeId(e.target.value)}
+                    sx={{ marginBottom: '10px', width: '100%' }}
+                />
+                <TextField
+                    label="Created By"
+                    value={newCreatedBy}
+                    onChange={(e) => setNewCreatedBy(e.target.value)}
+                    sx={{ marginBottom: '10px', width: '100%' }}
+                />
+                <TextField
+                    label="Current Handler"
+                    value={newCurrentHandler}
+                    onChange={(e) => setNewCurrentHandler(e.target.value)}
+                    sx={{ marginBottom: '10px', width: '100%' }}
+                />
+
+                <Button onClick={addDocument} variant="contained" color="primary" sx={{ marginTop: '10px' }}>
+                    Add
+                </Button>
+            </div>
+
+            {/* Documents Table */}
+            <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
+                <TableHead sx={{ backgroundColor: 'yellow' }}>
+                    <TableRow>
+                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black' }}>Document Code</TableCell>
+                        <TableCell sx={{ border: '1px solid black' }}>Title</TableCell>
+                        <TableCell sx={{ border: '1px solid black' }}>Description</TableCell>
+                        <TableCell sx={{ border: '1px solid black' }}>Type ID</TableCell> {/* Added Type ID */}
+                        <TableCell sx={{ border: '1px solid black' }}>Created By</TableCell> {/* Added Created By */}
+                        <TableCell sx={{ border: '1px solid black' }}>Current Handler</TableCell> {/* Added Current Handler */}
+                        <TableCell sx={{ border: '1px solid black' }}>Actions</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {data.map((document) => (
+                        <TableRow key={document.id}>
+                            <TableCell sx={{ border: '1px solid black' }}>{document.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black' }}>
+                                {editDocument && editDocument.id === document.id ? (
                                     <TextField
-                                        value={editItem.lastname}
-                                        onChange={(e) => setEditItem({ ...editItem, lastname: e.target.value })}
+                                        value={editDocument.document_code}
+                                        onChange={(e) => setEditDocument({ ...editDocument, document_code: e.target.value })}
+                                        sx={{ width: '100%' }}
                                     />
                                 ) : (
-                                    item.lastname
+                                    document.document_code
                                 )}
                             </TableCell>
-                
-                            <TableCell>
-                                {/* Show Save/Cancel if editing */}
-                                {editItem && editItem.id === item.id ? (
+                            <TableCell sx={{ border: '1px solid black' }}>
+                                {editDocument && editDocument.id === document.id ? (
+                                    <TextField
+                                        value={editDocument.title}
+                                        onChange={(e) => setEditDocument({ ...editDocument, title: e.target.value })}
+                                        sx={{ width: '100%' }}
+                                    />
+                                ) : (
+                                    document.title
+                                )}
+                            </TableCell>
+                            <TableCell sx={{ border: '1px solid black' }}>
+                                {editDocument && editDocument.id === document.id ? (
+                                    <TextField
+                                        value={editDocument.description}
+                                        onChange={(e) => setEditDocument({ ...editDocument, description: e.target.value })}
+                                        sx={{ width: '100%' }}
+                                    />
+                                ) : (
+                                    document.description
+                                )}
+                            </TableCell>
+                            <TableCell sx={{ border: '1px solid black' }}>
+                                {editDocument && editDocument.id === document.id ? (
+                                    <TextField
+                                        value={editDocument.type_id}
+                                        onChange={(e) => setEditDocument({ ...editDocument, type_id: e.target.value })}
+                                        sx={{ width: '100%' }} // Show Type ID in edit mode
+                                    />
+                                ) : (
+                                    document.type_id // Display Type ID
+                                )}
+                            </TableCell>
+                            <TableCell sx={{ border: '1px solid black' }}>
+                                {editDocument && editDocument.id === document.id ? (
+                                    <TextField
+                                        value={editDocument.created_by}
+                                        onChange={(e) => setEditDocument({ ...editDocument, created_by: e.target.value })}
+                                        sx={{ width: '100%' }} // Show Created By in edit mode
+                                    />
+                                ) : (
+                                    document.created_by // Display Created By
+                                )}
+                            </TableCell>
+                            <TableCell sx={{ border: '1px solid black' }}>
+                                {editDocument && editDocument.id === document.id ? (
+                                    <TextField
+                                        value={editDocument.current_handler}
+                                        onChange={(e) => setEditDocument({ ...editDocument, current_handler: e.target.value })}
+                                        sx={{ width: '100%' }} // Show Current Handler in edit mode
+                                    />
+                                ) : (
+                                    document.current_handler // Display Current Handler
+                                )}
+                            </TableCell>
+                            <TableCell sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
+                                {editDocument && editDocument.id === document.id ? (
                                     <>
-                                        <Button onClick={updateItem} variant="contained" color="primary">Save</Button>
-                                        <Button onClick={() => setEditItem(null)} variant="outlined" color="secondary">Cancel</Button>
+                                        <Button onClick={updateDocument} variant="contained" color="primary">Save</Button>
+                                        <Button onClick={() => setEditDocument(null)} variant="contained" color="error">Cancel</Button>
                                     </>
                                 ) : (
                                     <>
-                                        <Button onClick={() => setEditItem(item)} variant="outlined" color="primary">Edit</Button>
-                                        <Button onClick={() => deleteItem(item.id)} variant="outlined" color="secondary">Delete</Button>
+                                        <Button onClick={() => setEditDocument(document)} variant="contained" color="primary">Edit</Button>
+                                        <Button onClick={() => deleteDocument(document.id)} variant="contained" color="error">Delete</Button>
                                     </>
                                 )}
                             </TableCell>
