@@ -14,15 +14,25 @@ const Register = () => {
 
     const handleRegister = async () => {
         try {
+            // Make the registration request to your server
             await axios.post('http://localhost:5000/register', formData);
-            setOpenSuccess(true); // Open success modal
+            setOpenSuccess(true); // Show success modal
+
+            // Redirect to login after 1.5 seconds
             setTimeout(() => {
-                navigate('/login'); // Redirect after showing success modal
+                navigate('/login');
             }, 1500); // Show for 1.5 seconds
+
         } catch (error) {
             console.error('Registration Error:', error);
-            setErrorMessage('Registration failed. Please try again.'); // Set error message
-            setOpenError(true); // Open error modal
+
+            // Show an error message based on the server response
+            if (error.response && error.response.status === 400) {
+                setErrorMessage('Email is already registered or invalid details.'); // Adjusted error message based on the response
+            } else {
+                setErrorMessage('An error occurred during registration. Please try again.'); // Generic error message
+            }
+            setOpenError(true); // Show error modal
         }
     };
 
@@ -42,10 +52,10 @@ const Register = () => {
                     flexDirection: 'column', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
-                    height: '60vh', // Reducing height to make it more compact
-                    gap: 2, // Adds space between TextField and Button
-                    maxWidth: '400px', // Max width to limit the form size
-                    margin: 'auto', // Center the form horizontally
+                    height: '60vh', 
+                    gap: 2, 
+                    maxWidth: '400px', 
+                    margin: 'auto', 
                     transform: 'translateX(-100px)',
                 }}
             >

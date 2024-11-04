@@ -8,7 +8,15 @@ import Contact from './pages/Contact';
 import SettingsForm from './SettingsForm';
 import Register from "./components/Register";
 import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
+import Document from "./components/Document";
+import Department from "./components/Department";
+import Notification from "./components/Notification";
+import Attachment from "./components/Attachment";
+import Movement from "./components/Movement";
+import Type from "./components/Type";
+import History from "./components/History";
+import Upload from "./components/Upload";
+import Profile from "./components/Profile";
 
 const drawerWidth = 240;
 
@@ -89,8 +97,32 @@ function App() {
               <ListItem button component={Link} to="/home">
                 <ListItemText primary="Home" />
               </ListItem>
-              <ListItem button component={Link} to="/dashboard">
-                <ListItemText primary="Dashboard" />
+              <ListItem button component={Link} to="/notification">
+                <ListItemText primary="Notifications" />
+              </ListItem>
+              <ListItem button component={Link} to="/department">
+                <ListItemText primary="Departments" />
+              </ListItem>
+              <ListItem button component={Link} to="/document">
+                <ListItemText primary="Documents" />
+              </ListItem>
+              <ListItem button component={Link} to="/attachment">
+                <ListItemText primary="Attachments" />
+              </ListItem>
+              <ListItem button component={Link} to="/movement">
+                <ListItemText primary="Movements" />
+              </ListItem>
+              <ListItem button component={Link} to="/type">
+                <ListItemText primary="Types" />
+              </ListItem>
+              <ListItem button component={Link} to="/history">
+                <ListItemText primary="History" />
+              </ListItem>
+              <ListItem button component={Link} to="/upload">
+                <ListItemText primary="Upload" />
+              </ListItem>
+              <ListItem button component={Link} to="/profile">
+                <ListItemText primary="Profile" />
               </ListItem>
               <ListItem button component={Link} to="/about">
                 <ListItemText primary="About" />
@@ -118,7 +150,15 @@ function App() {
             <Route path="/settings" element={isAuthenticated ? <SettingsForm onUpdate={fetchSettings} /> : <Navigate to="/login" />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login onLoginSuccess={() => setIsAuthenticated(true)} />} />
-            <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+            <Route path="/notification" element={isAuthenticated ? <Notification /> : <Navigate to="/login" />} />
+            <Route path="/department" element={isAuthenticated ? <Department /> : <Navigate to="/login" />} />
+            <Route path="/document" element={isAuthenticated ? <Document /> : <Navigate to="/login" />} />
+            <Route path="/attachment" element={isAuthenticated ? <Attachment /> : <Navigate to="/login" />} />
+            <Route path="/movement" element={isAuthenticated ? <Movement /> : <Navigate to="/login" />} />
+            <Route path="/type" element={isAuthenticated ? <Type /> : <Navigate to="/login" />} />
+            <Route path="/history" element={isAuthenticated ? <History /> : <Navigate to="/login" />} />
+            <Route path="/upload" element={isAuthenticated ? <Upload /> : <Navigate to="/login" />} />
+            <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
             <Route path="/" element={isAuthenticated ? <Navigate to="/home" /> : <Navigate to="/login" />} />
           </Routes>
         </Box>

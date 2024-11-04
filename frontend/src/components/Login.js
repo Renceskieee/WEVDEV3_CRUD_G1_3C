@@ -14,16 +14,27 @@ const Login = ({ onLoginSuccess }) => {
 
     const handleLogin = async () => {
         try {
+            // Send login request to your server
             const response = await axios.post('http://localhost:5000/login', formData);
+
+            // If login is successful, store the JWT token in local storage
             localStorage.setItem('token', response.data.token);
             onLoginSuccess(); // Update authentication state
-            setOpenSuccess(true); // Open success modal
+            
+            // Show success modal and redirect after 1.5 seconds
+            setOpenSuccess(true);
             setTimeout(() => {
-                navigate('/home'); // Redirect after showing success modal
-            }, 1500); // Show for 1.5 seconds
+                navigate('/home'); // Redirect to home after success
+            }, 1500);
         } catch (error) {
             console.error('Login Error:', error);
-            setErrorMessage('Incorrect password or not registered.'); // Set error message
+            
+            // Show an error message based on the server response
+            if (error.response && error.response.status === 400) {
+                setErrorMessage('Incorrect password or not registered.'); // Adjusted error message
+            } else {
+                setErrorMessage('An error occurred. Please try again.'); // Generic error message
+            }
             setOpenError(true); // Open error modal
         }
     };
@@ -44,10 +55,10 @@ const Login = ({ onLoginSuccess }) => {
                     flexDirection: 'column', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
-                    height: '60vh', // Reducing height to make it more compact
-                    gap: 2, // Adds space between TextField and Button
-                    maxWidth: '400px', // Max width to limit the form size
-                    margin: 'auto', // Center the form horizontally
+                    height: '60vh', 
+                    gap: 2, 
+                    maxWidth: '400px', 
+                    margin: 'auto', 
                     transform: 'translateX(-100px)',
                 }}
             >

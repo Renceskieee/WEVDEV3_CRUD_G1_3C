@@ -13,7 +13,7 @@ function SettingsForm({ onUpdate }) {
     // Fetch current settings to populate the form fields
     axios.get('http://localhost:5000/api/settings')
         .then(response => {
-            const { company_name, logo_url, header_color, footer_text, footer_color } = response.data;
+            const { company_name, header_color, footer_text, footer_color } = response.data;
             setCompanyName(company_name || '');
             setHeaderColor(header_color || '#ffffff');
             setFooterText(footer_text || '');
