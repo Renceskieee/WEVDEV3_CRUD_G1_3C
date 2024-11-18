@@ -48,7 +48,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Route to handle XLS file upload and insert into MySQL
+// Route to handle XLS file upload and insert into MySQL (Documents)
 app.post('/upload-xls', upload.single('file'), async (req, res) => {
   if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -129,12 +129,23 @@ const deleteOldLogo = (logoUrl) => {
 
 // User registration
 app.post('/register', async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, firstName, lastName, role, departmentId } = req.body;
+    
+    // Validate role (optional, you can handle this as needed)
+    const validRoles = ['Admin', 'User'];
+    if (!validRoles.includes(role)) {
+        return res.status(400).send({ error: 'Invalid role selected' });
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const query = `INSERT INTO users (username, email, password) VALUES (?, ?, ?)`;
+    // SQL query to insert the new user
+    const query = `INSERT INTO users (username, email, password, first_name, last_name, role, department_id) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
     try {
-        await db.query(query, [username, email, hashedPassword]);
+        await db.query(query, [username, email, hashedPassword, firstName, lastName, role, departmentId]);
         res.status(200).send({ message: 'User Registered' });
     } catch (err) {
         console.error('Registration error:', err);
@@ -248,13 +259,96 @@ app.delete('/document/:id', async (req, res) => {
     }
 });
 
+// Route to fetch all document attachments
+app.get('/document_attachments', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM document_attachments');
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Error fetching attachments:', error);
+        res.status(500).json({ error: 'Error fetching attachments' });
+    }
+});
+
+// Route to add a new attachment
+app.post('/document_attachments', async (req, res) => {
+    const { document_id, file_name, file_path, uploaded_by } = req.body;
+    
+    if (!document_id || !file_name || !file_path || !uploaded_by) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        const query = `
+            INSERT INTO document_attachments (document_id, file_name, file_path, uploaded_by) 
+            VALUES (?, ?, ?, ?)
+        `;
+        const [result] = await db.query(query, [document_id, file_name, file_path, uploaded_by]);
+        res.status(201).json({ message: 'Attachment added successfully', attachmentId: result.insertId });
+    } catch (error) {
+        console.error('Error adding attachment:', error);
+        res.status(500).json({ error: 'Error adding attachment' });
+    }
+});
+
+// Route to update an attachment
+app.put('/document_attachments/:id', async (req, res) => {
+    const { id } = req.params;
+    const { document_id, file_name, file_path, uploaded_by } = req.body;
+
+    if (!document_id || !file_name || !file_path || !uploaded_by) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        const query = `
+            UPDATE document_attachments 
+            SET document_id = ?, file_name = ?, file_path = ?, uploaded_by = ?
+            WHERE id = ?
+        `;
+        const [result] = await db.query(query, [document_id, file_name, file_path, uploaded_by, id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Attachment not found' });
+        }
+
+        res.status(200).json({ message: 'Attachment updated successfully' });
+    } catch (error) {
+        console.error('Error updating attachment:', error);
+        res.status(500).json({ error: 'Error updating attachment' });
+    }
+});
+
+// Route to delete an attachment
+app.delete('/document_attachments/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = `DELETE FROM document_attachments WHERE id = ?`;
+        const [result] = await db.query(query, [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Attachment not found' });
+        }
+
+        res.status(200).json({ message: 'Attachment deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting attachment:', error);
+        res.status(500).json({ error: 'Error deleting attachment' });
+    }
+});
+
+
 // Update company settings
 app.post('/api/settings', upload.single('logo'), async (req, res) => {
     const companyName = req.body.company_name || '';
     const headerColor = req.body.header_color || '#ffffff';
     const footerText = req.body.footer_text || '';
     const footerColor = req.body.footer_color || '#ffffff';
-    const logoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const activeNavIndexColor = req.body.active_nav_index_color || '#000000'; // New color setting
+    const companyNameColor = req.body.company_name_color || '#000000'; // New: Company Name Color
+    const footerTextColor = req.body.footer_text_color || '#000000'; // New: Footer Text Color
+    const logoUrl = req.file ? `/uploads/${req.file.filename}` : null; // Fixed missing backtick
 
     try {
         const [result] = await db.query('SELECT * FROM company_settings WHERE id = 1');
@@ -262,21 +356,54 @@ app.post('/api/settings', upload.single('logo'), async (req, res) => {
         if (result.length > 0) {
             const oldLogoUrl = result[0].logo_url;
 
-            const query = 'UPDATE company_settings SET company_name = ?, header_color = ?, footer_text = ?, footer_color = ?' +
-                (logoUrl ? ', logo_url = ?' : '') + ' WHERE id = 1';
-            const params = [companyName, headerColor, footerText, footerColor];
+            const query = `
+                UPDATE company_settings 
+                SET 
+                    company_name = ?, 
+                    header_color = ?, 
+                    footer_text = ?, 
+                    footer_color = ?, 
+                    active_nav_index_color = ?, 
+                    company_name_color = ?, 
+                    footer_text_color = ? 
+                    ${logoUrl ? ', logo_url = ?' : ''}
+                WHERE id = 1
+            `;
+            const params = [
+                companyName,
+                headerColor,
+                footerText,
+                footerColor,
+                activeNavIndexColor,
+                companyNameColor,
+                footerTextColor,
+            ];
+
             if (logoUrl) params.push(logoUrl);
 
             await db.query(query, params);
 
             if (logoUrl && oldLogoUrl) {
-                deleteOldLogo(oldLogoUrl);
+                deleteOldLogo(oldLogoUrl); // Delete old logo file if a new one is uploaded
             }
 
             res.send({ success: true });
         } else {
-            const query = 'INSERT INTO company_settings (company_name, header_color, footer_text, footer_color, logo_url) VALUES (?, ?, ?, ?, ?)';
-            await db.query(query, [companyName, headerColor, footerText, footerColor, logoUrl]);
+            const query = `
+                INSERT INTO company_settings 
+                (company_name, header_color, footer_text, footer_color, active_nav_index_color, company_name_color, footer_text_color, logo_url) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            await db.query(query, [
+                companyName,
+                headerColor,
+                footerText,
+                footerColor,
+                activeNavIndexColor,
+                companyNameColor,
+                footerTextColor,
+                logoUrl,
+            ]);
             res.send({ success: true });
         }
     } catch (err) {
