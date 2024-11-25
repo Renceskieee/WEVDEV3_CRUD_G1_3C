@@ -1,6 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField, Container, MenuItem, Select, FormControl, InputLabel, Typography } from '@mui/material';
+import {
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    TextField,
+    Container,
+    Typography,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Snackbar,
+    Alert,
+    IconButton,
+} from '@mui/material';
+import { Delete, Edit } from '@mui/icons-material'; // Importing icons
 
 const Dashboard = () => {
     const [data, setData] = useState([]);
@@ -14,6 +32,13 @@ const Dashboard = () => {
     const [newPriority, setNewPriority] = useState('');
     const [editDocument, setEditDocument] = useState(null);
 
+    // Snackbar State
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        severity: 'success', // success | error | warning | info
+        message: '',
+    });
+    
     useEffect(() => {
         fetchDocuments();
     }, []);
@@ -36,6 +61,10 @@ const Dashboard = () => {
         return true;
     };
 
+    const showSnackbar = (message, severity) => {
+        setSnackbar({ open: true, message, severity });
+    };
+
     const addDocument = async () => {
         if (!validateEditForm()) {
             alert('Please fill in all required fields');
@@ -54,6 +83,7 @@ const Dashboard = () => {
                 priority: newPriority
             });
 
+            showSnackbar('Document added successfully.', 'success');
             resetForm();
             fetchDocuments();
         } catch (error) {
@@ -87,11 +117,11 @@ const Dashboard = () => {
 
             if (response.ok) {
                 const result = await response.json();
-                alert(result.message);
 
                 const updatedDocuments = data.map(doc =>
                     doc.id === updatedDocument.id ? updatedDocument : doc
                 );
+                showSnackbar('Document updated successfully.', 'success');
                 setData(updatedDocuments);
                 resetForm();
             } else {
@@ -108,10 +138,12 @@ const Dashboard = () => {
         try {
             await axios.delete(`http://localhost:5000/document/${id}`);
             fetchDocuments();
+            showSnackbar("Document deleted successfully!", "success");
         } catch (error) {
             console.error('Error deleting document:', error);
+            showSnackbar("Failed to delete document!", "error");
         }
-    };
+    };    
 
     const resetForm = () => {
         setNewDocumentCode('');
@@ -135,6 +167,10 @@ const Dashboard = () => {
         setNewCurrentHandler(doc.current_handler);
         setNewCurrentStatus(doc.current_status);
         setNewPriority(doc.priority);
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar({ ...snackbar, open: false });
     };
 
     return (
@@ -257,26 +293,28 @@ const Dashboard = () => {
                             <TableCell sx={{ border: '1px solid black' }}>{doc.current_status}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{doc.priority}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
-                                <Button
-                                    onClick={() => handleEditClick(doc)}
-                                    variant="outlined"
-                                    color="primary"
-                                    sx={{ marginRight: '10px' }}
-                                >
-                                    Edit
-                                </Button>
-                                <Button
-                                    onClick={() => deleteDocument(doc.id)}
-                                    variant="outlined"
-                                    color="error"
-                                >
-                                    Delete
-                                </Button>
+                                <IconButton onClick={() => handleEditClick(doc)} color="primary">
+                                    <Edit />
+                                </IconButton>
+                                <IconButton onClick={() => deleteDocument(doc.id)} color="error">
+                                    <Delete />
+                                </IconButton>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

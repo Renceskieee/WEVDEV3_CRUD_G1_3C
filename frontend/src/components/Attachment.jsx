@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField, Container, Typography } from '@mui/material';
+import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField, Container, Typography, Snackbar, Alert, IconButton } from '@mui/material';
 import axios from 'axios';
+import { Edit, Delete } from '@mui/icons-material';
 
 const Attachment = () => {
     const [data, setData] = useState([]);
@@ -9,6 +10,7 @@ const Attachment = () => {
     const [newFilePath, setNewFilePath] = useState('');
     const [newUploadedBy, setNewUploadedBy] = useState('');
     const [editAttachment, setEditAttachment] = useState(null);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
     useEffect(() => {
         fetchAttachments();
@@ -34,14 +36,15 @@ const Attachment = () => {
 
             try {
                 const response = await axios.post('http://localhost:5000/document_attachments', newAttachment);
-                alert(response.data.message);
+                setSnackbar({ open: true, message: response.data.message, severity: 'success' });
                 fetchAttachments(); // Refresh the list
                 resetForm(); // Reset input fields
             } catch (error) {
                 console.error('Error adding attachment:', error);
+                setSnackbar({ open: true, message: 'Error adding attachment', severity: 'error' });
             }
         } else {
-            alert('Please fill all fields');
+            setSnackbar({ open: true, message: 'Please fill all fields', severity: 'warning' });
         }
     };
 
@@ -72,11 +75,12 @@ const Attachment = () => {
 
             try {
                 await axios.put(`http://localhost:5000/document_attachments/${editAttachment.id}`, updatedAttachment);
-                alert('Attachment updated successfully');
+                setSnackbar({ open: true, message: 'Attachment updated successfully', severity: 'success' });
                 fetchAttachments();
                 resetForm();
             } catch (error) {
                 console.error('Error updating attachment:', error);
+                setSnackbar({ open: true, message: 'Error updating attachment', severity: 'error' });
             }
         }
     };
@@ -84,11 +88,16 @@ const Attachment = () => {
     const deleteAttachment = async (id) => {
         try {
             await axios.delete(`http://localhost:5000/document_attachments/${id}`);
-            alert('Attachment deleted');
+            setSnackbar({ open: true, message: 'Attachment deleted', severity: 'success' });
             fetchAttachments();
         } catch (error) {
             console.error('Error deleting attachment:', error);
+            setSnackbar({ open: true, message: 'Error deleting attachment', severity: 'error' });
         }
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar({ ...snackbar, open: false });
     };
 
     return (
@@ -161,17 +170,29 @@ const Attachment = () => {
                             <TableCell sx={{ border: '1px solid black' }}>{att.file_path}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{att.uploaded_by}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
-                                <Button onClick={() => handleEditClick(att)} variant="outlined" sx={{ marginRight: '5px' }}>
-                                    Edit
-                                </Button>
-                                <Button onClick={() => deleteAttachment(att.id)} variant="outlined" color="error">
-                                    Delete
-                                </Button>
+                                <IconButton onClick={() => handleEditClick(att)} color="primary">
+                                    <Edit />
+                                </IconButton>
+                                <IconButton onClick={() => deleteAttachment(att.id)} color="error">
+                                    <Delete />
+                                </IconButton>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
+
+            {/* Snackbar for messages */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

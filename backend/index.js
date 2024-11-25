@@ -129,23 +129,21 @@ const deleteOldLogo = (logoUrl) => {
 
 // User registration
 app.post('/register', async (req, res) => {
-    const { username, email, password, firstName, lastName, role, departmentId } = req.body;
-    
-    // Validate role (optional, you can handle this as needed)
-    const validRoles = ['Admin', 'User'];
-    if (!validRoles.includes(role)) {
-        return res.status(400).send({ error: 'Invalid role selected' });
-    }
+    const { username, email, password } = req.body;
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Set role to "User" for all new registrations
+    const role = 'User';
 
     // SQL query to insert the new user
-    const query = `INSERT INTO users (username, email, password, first_name, last_name, role, department_id) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)`;
 
     try {
-        await db.query(query, [username, email, hashedPassword, firstName, lastName, role, departmentId]);
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert user into the database with "User" as role
+        await db.query(query, [username, email, hashedPassword, role]);
+
         res.status(200).send({ message: 'User Registered' });
     } catch (err) {
         console.error('Registration error:', err);
@@ -338,6 +336,460 @@ app.delete('/document_attachments/:id', async (req, res) => {
     }
 });
 
+// Get all document movements
+app.get('/document_movements', async (req, res) => {
+    const query = 'SELECT * FROM document_movements';
+    try {
+        const [result] = await db.query(query);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching document movements:', error);
+        res.status(500).json({ error: 'Failed to fetch document movements' });
+    }
+});
+
+// Add new document movement
+app.post('/document_movements', async (req, res) => {
+    const { document_id, from_user_id, to_user_id, from_department_id, to_department_id, status, remarks } = req.body;
+
+    if (!document_id || !from_user_id || !to_user_id || !from_department_id || !to_department_id || !status) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const query = `
+        INSERT INTO document_movements (document_id, from_user_id, to_user_id, from_department_id, to_department_id, status, remarks) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    try {
+        const [result] = await db.query(query, [document_id, from_user_id, to_user_id, from_department_id, to_department_id, status, remarks]);
+        res.status(201).json({ message: 'Movement added', id: result.insertId });
+    } catch (error) {
+        console.error('SQL Error:', error);
+        res.status(500).json({ error: 'Failed to add movement' });
+    }
+});
+
+// Update document movement
+app.put('/document_movements/:id', async (req, res) => {
+    const { id } = req.params;
+    const { document_id, status, from_user_id, to_user_id, from_department_id, to_department_id, remarks } = req.body;
+
+    console.log(`Received update request for movement with ID: ${id}`);
+    console.log('Request body:', req.body);
+
+    try {
+        const [result] = await db.query(`
+            UPDATE document_movements
+            SET 
+                document_id = ?,
+                status = ?,
+                from_user_id = IFNULL(?, NULL),
+                to_user_id = IFNULL(?, NULL),
+                from_department_id = IFNULL(?, NULL),
+                to_department_id = IFNULL(?, NULL),
+                remarks = ?
+            WHERE id = ?`,
+            [document_id, status, from_user_id, to_user_id, from_department_id, to_department_id, remarks, id]
+        );        
+
+        console.log('SQL query result:', result); // Log the result here
+
+        if (result.affectedRows > 0) {
+            console.log('Successfully updated the document movement');
+            res.status(200).json({ message: 'Movement updated successfully' });
+        } else {
+            console.log('No rows affected (movement not found or already up to date)');
+            res.status(404).json({ message: 'Movement not found or no changes made' });
+        }
+    } catch (error) {
+        console.error('Error occurred during update:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Delete document movement
+app.delete('/document_movements/:id', async (req, res) => {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM document_movements WHERE id = ?';
+    try {
+        const [result] = await db.query(query, [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Movement not found' });
+        }
+        res.status(200).json({ message: 'Movement deleted' });
+    } catch (error) {
+        console.error('Error deleting movement:', error);
+        res.status(500).json({ error: 'Failed to delete movement' });
+    }
+});
+
+// Get all document types
+app.get('/document-types', async (req, res) => {
+    const query = 'SELECT * FROM document_types';
+    try {
+        const [result] = await db.query(query);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching document types:', error);
+        res.status(500).json({ error: 'Failed to fetch document types' });
+    }
+});
+
+// Add new document type
+app.post('/document-types', async (req, res) => {
+    const { name, description } = req.body;
+
+    if (!name || !description) {
+        return res.status(400).json({ error: 'Name and description are required' });
+    }
+
+    const query = `
+        INSERT INTO document_types (name, description, created_at, updated_at)
+        VALUES (?, ?, NOW(), NOW())
+    `;
+    try {
+        const [result] = await db.query(query, [name, description]);
+        res.status(201).json({ message: 'Document type added', id: result.insertId });
+    } catch (error) {
+        console.error('Error adding document type:', error);
+        res.status(500).json({ error: 'Failed to add document type' });
+    }
+});
+
+// Update document type
+app.put('/document-types/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, description } = req.body;
+
+    if (!name || !description) {
+        return res.status(400).json({ error: 'Name and description are required' });
+    }
+
+    const query = `
+        UPDATE document_types
+        SET 
+            name = ?,
+            description = ?,
+            updated_at = NOW()
+        WHERE id = ?
+    `;
+    try {
+        const [result] = await db.query(query, [name, description, id]);
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Document type updated successfully' });
+        } else {
+            res.status(404).json({ error: 'Document type not found' });
+        }
+    } catch (error) {
+        console.error('Error updating document type:', error);
+        res.status(500).json({ error: 'Failed to update document type' });
+    }
+});
+
+// Delete document type
+app.delete('/document-types/:id', async (req, res) => {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM document_types WHERE id = ?';
+    try {
+        const [result] = await db.query(query, [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Document type not found' });
+        }
+        res.status(200).json({ message: 'Document type deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting document type:', error);
+        res.status(500).json({ error: 'Failed to delete document type' });
+    }
+});
+
+// Get all departments
+app.get('/departments', async (req, res) => {
+    const query = 'SELECT * FROM departments';
+    try {
+        const [result] = await db.query(query);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching departments:', error);
+        res.status(500).json({ error: 'Failed to fetch departments' });
+    }
+});
+
+// Add a new department
+app.post('/departments', async (req, res) => {
+    const { name } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ error: 'Name is required' });
+    }
+
+    const query = `
+        INSERT INTO departments (name, created_at, updated_at)
+        VALUES (?, NOW(), NOW())
+    `;
+    try {
+        const [result] = await db.query(query, [name]);
+        res.status(201).json({ message: 'Department added', id: result.insertId });
+    } catch (error) {
+        console.error('Error adding department:', error);
+        res.status(500).json({ error: 'Failed to add department' });
+    }
+});
+
+// Update department
+app.put('/departments/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name) {
+        return res.status(400).json({ error: 'Name is required' });
+    }
+
+    const query = `
+        UPDATE departments
+        SET name = ?, updated_at = NOW()
+        WHERE id = ?
+    `;
+    try {
+        const [result] = await db.query(query, [name, id]);
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Department updated successfully' });
+        } else {
+            res.status(404).json({ error: 'Department not found' });
+        }
+    } catch (error) {
+        console.error('Error updating department:', error);
+        res.status(500).json({ error: 'Failed to update department' });
+    }
+});
+
+// Delete department
+app.delete('/departments/:id', async (req, res) => {
+    const { id } = req.params;
+
+    const query = 'DELETE FROM departments WHERE id = ?';
+    try {
+        const [result] = await db.query(query, [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Department not found' });
+        }
+        res.status(200).json({ message: 'Department deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting department:', error);
+        res.status(500).json({ error: 'Failed to delete department' });
+    }
+});
+
+// Route to fetch all notifications
+app.get('/notifications', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM notifications');
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ error: 'Error fetching notifications' });
+    }
+});
+
+// Route to add a new notification
+app.post('/notifications', async (req, res) => {
+    const { user_id, document_id, message } = req.body;
+
+    if (!user_id || !document_id || !message) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        const query = 'INSERT INTO notifications (user_id, document_id, message) VALUES (?, ?, ?)';
+        const [result] = await db.query(query, [user_id, document_id, message]);
+        res.status(201).json({ message: 'Notification added successfully', notificationId: result.insertId });
+    } catch (error) {
+        console.error('Error adding notification:', error);
+        res.status(500).json({ error: 'Error adding notification' });
+    }
+});
+
+// Route to update a notification
+app.put('/notifications/:id', async (req, res) => {
+    const { id } = req.params;
+    const { user_id, document_id, message } = req.body;
+
+    if (!user_id || !document_id || !message) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    try {
+        const query = 'UPDATE notifications SET user_id = ?, document_id = ?, message = ? WHERE id = ?';
+        const [result] = await db.query(query, [user_id, document_id, message, id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Notification not found' });
+        }
+
+        res.status(200).json({ message: 'Notification updated successfully' });
+    } catch (error) {
+        console.error('Error updating notification:', error);
+        res.status(500).json({ error: 'Error updating notification' });
+    }
+});
+
+// Route to delete a notification
+app.delete('/notifications/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = 'DELETE FROM notifications WHERE id = ?';
+        const [result] = await db.query(query, [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Notification not found' });
+        }
+
+        res.status(200).json({ message: 'Notification deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        res.status(500).json({ error: 'Error deleting notification' });
+    }
+});
+
+// Fetch all document history
+app.get('/document_history', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT id, document_id, changed_by, change_type, previous_status, new_status, previous_handler, new_handler, timestamp FROM document_history');
+        res.status(200).json(rows);
+    } catch (error) {
+        console.error('Error fetching document history:', error);
+        res.status(500).json({ error: 'Error fetching document history' });
+    }
+});
+
+// Add a new history entry
+app.post('/document_history', async (req, res) => {
+    const { document_id, changed_by, change_type, previous_status, new_status, previous_handler, new_handler } = req.body;
+
+    // Validate change_type against enum values
+    const validChangeTypes = ['Created', 'Updated', 'Moved', 'Status Changed'];
+    if (!validChangeTypes.includes(change_type)) {
+        return res.status(400).json({ error: `Invalid change_type. Valid values are: ${validChangeTypes.join(', ')}` });
+    }
+
+    if (!document_id || !changed_by || !change_type) {
+        return res.status(400).json({ error: 'document_id, changed_by, and change_type are required' });
+    }
+
+    try {
+        const query = `
+            INSERT INTO document_history (document_id, changed_by, change_type, previous_status, new_status, previous_handler, new_handler)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+        const [result] = await db.query(query, [document_id, changed_by, change_type, previous_status, new_status, previous_handler, new_handler]);
+        res.status(201).json({ message: 'History entry added successfully', id: result.insertId });
+    } catch (error) {
+        console.error('Error adding history entry:', error);
+        res.status(500).json({ error: 'Error adding history entry' });
+    }
+});
+
+// Update an existing history entry
+app.put('/document_history/:id', async (req, res) => {
+    const { id } = req.params;
+    const { document_id, changed_by, change_type, previous_status, new_status, previous_handler, new_handler } = req.body;
+
+    // Validate change_type against enum values
+    const validChangeTypes = ['Created', 'Updated', 'Moved', 'Status Changed'];
+    if (!validChangeTypes.includes(change_type)) {
+        return res.status(400).json({ error: `Invalid change_type. Valid values are: ${validChangeTypes.join(', ')}` });
+    }
+
+    if (!document_id || !changed_by || !change_type) {
+        return res.status(400).json({ error: 'document_id, changed_by, and change_type are required' });
+    }
+
+    try {
+        const query = `
+            UPDATE document_history
+            SET document_id = ?, changed_by = ?, change_type = ?, previous_status = ?, new_status = ?, previous_handler = ?, new_handler = ?
+            WHERE id = ?
+        `;
+        const [result] = await db.query(query, [document_id, changed_by, change_type, previous_status, new_status, previous_handler, new_handler, id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'History entry not found' });
+        }
+
+        res.status(200).json({ message: 'History entry updated successfully' });
+    } catch (error) {
+        console.error('Error updating history entry:', error);
+        res.status(500).json({ error: 'Error updating history entry' });
+    }
+});
+
+// Delete a history entry
+app.delete('/document_history/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = 'DELETE FROM document_history WHERE id = ?';
+        const [result] = await db.query(query, [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'History entry not found' });
+        }
+
+        res.status(200).json({ message: 'History entry deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting history entry:', error);
+        res.status(500).json({ error: 'Error deleting history entry' });
+    }
+});
+
+// GET all users
+app.get('/users', async (req, res) => {
+    try {
+        const [result] = await db.query('SELECT id, username, first_name, last_name, email, role, department_id FROM users');
+        res.json(result);
+    } catch (err) {
+        console.error('Error fetching users:', err);
+        res.status(500).send({ message: 'Failed to fetch users' });
+    }
+});
+
+// PUT (update a user)
+app.put('/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { username, first_name, last_name, email, role, department_id } = req.body;
+
+    try {
+        const query = `
+            UPDATE users
+            SET username = ?, first_name = ?, last_name = ?, email = ?, role = ?, department_id = ?
+            WHERE id = ?
+        `;
+
+        const params = [username, first_name, last_name, email, role, department_id, id];
+        await db.query(query, params);
+
+        res.json({ id, username, first_name, last_name, email, role, department_id });
+    } catch (err) {
+        console.error('Error updating user:', err);
+        res.status(500).send({ message: 'Failed to update user' });
+    }
+});
+
+// DELETE a user
+app.delete('/users/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const query = 'DELETE FROM users WHERE id = ?';
+        await db.query(query, [id]);
+        res.status(204).send(); // No content
+    } catch (err) {
+        console.error('Error deleting user:', err);
+        res.status(500).send({ message: 'Failed to delete user' });
+    }
+});
 
 // Update company settings
 app.post('/api/settings', upload.single('logo'), async (req, res) => {

@@ -1,3 +1,44 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* General Styles */
+body {
+  @apply font-sans bg-gray-100 m-0 p-0;
+}
+
+.contact-container {
+  @apply flex flex-col items-center justify-center text-center px-4 py-8 max-w-4xl mx-auto;
+}
+
+.header {
+  @apply flex items-center justify-center space-x-4;
+}
+
+.logo {
+  @apply h-12; /* Adjust logo size */
+}
+
+.title {
+  @apply text-2xl font-bold text-black; /* Title text set to black */
+}
+
+.address {
+  @apply text-sm text-black mt-4; /* Address text set to black */
+}
+
+.about {
+  @apply text-base text-black mt-8; /* About section text set to black */
+}
+
+.about h3 {
+  @apply text-lg font-semibold text-black mt-4; /* Subheading text set to black */
+}
+
+.about ul {
+  @apply list-none pl-0 mt-2;
+}
+
+.about li {
+  @apply text-base text-black mt-2; /* List items text set to black */
+}

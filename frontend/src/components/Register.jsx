@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { TextField, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import { TextField, Button, Container, Dialog, DialogActions, DialogContent, DialogTitle, Box, Typography } from '@mui/material';
 
 const Register = () => {
     const [formData, setFormData] = useState({
         username: '', 
         email: '', 
-        password: '', 
-        firstName: '', 
-        lastName: '', 
-        role: 'Role', 
-        departmentId: ''
+        password: ''
     });
     const navigate = useNavigate();
     
@@ -89,40 +85,6 @@ const Register = () => {
                     variant="outlined" 
                     fullWidth 
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })} 
-                />
-                <TextField 
-                    label="First Name" 
-                    variant="outlined" 
-                    fullWidth 
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} 
-                />
-                <TextField 
-                    label="Last Name" 
-                    variant="outlined" 
-                    fullWidth 
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} 
-                />
-                
-                {/* Role Selection */}
-                <FormControl fullWidth>
-                    <InputLabel>Role</InputLabel>
-                    <Select
-                        value={formData.role}
-                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                        label="Role"
-                    >
-                        <MenuItem value="Admin">Admin</MenuItem>
-                        <MenuItem value="User">User</MenuItem>
-                    </Select>
-                </FormControl>
-
-                {/* Department ID */}
-                <TextField 
-                    label="Department ID" 
-                    type="number" 
-                    variant="outlined" 
-                    fullWidth 
-                    onChange={(e) => setFormData({ ...formData, departmentId: e.target.value })} 
                 />
                 
                 <Button 
