@@ -48,58 +48,47 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Route to handle XLS file upload and insert into MySQL (Documents)
-app.post('/upload-xls', upload.single('file'), async (req, res) => {
-  if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-  }
+// Route to handle XLS file upload and insert into a selected table
+app.post('/upload-xls/:table', upload.single('file'), async (req, res) => {
+    const { table } = req.params; // Get the table name from the route parameter
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
 
-  try {
-      // Read the uploaded XLS file
-      const workbook = xlsx.readFile(req.file.path);
-      const sheet_name = workbook.SheetNames[0];
-      const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
+    try {
+        // Read the uploaded XLS file
+        const workbook = xlsx.readFile(req.file.path);
+        const sheet_name = workbook.SheetNames[0];
+        const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
-      // Log the uploaded data
-      console.log('Uploaded sheet data:', sheet);
+        if (!sheet.length) {
+            return res.status(400).json({ error: 'No data in uploaded file' });
+        }
 
-      // Insert data into the documents table
-      for (const row of sheet) {
-          const documentCode = row.document_code;
-          const title = row.title;
-          const description = row.description;
-          const typeId = row.type_id;
-          const createdBy = row.created_by;
-          const currentHandler = row.current_handler;
-          const currentStatus = row.current_status;
-          const priority = row.priority;
+        // Dynamically generate SQL and insert data into the selected table
+        const columns = Object.keys(sheet[0]); // Extract column names from the first row of data
+        const placeholders = columns.map(() => '?').join(', ');
+        const sql = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;
 
-          const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
-          const updatedAt = createdAt;
+        for (const row of sheet) {
+            const values = columns.map((col) => row[col]);
+            await db.query(sql, values);
+        }
 
-          const sql = `INSERT INTO documents 
-                      (document_code, title, description, type_id, created_by, current_handler, current_status, priority, created_at, updated_at) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        // Send success response
+        res.json({ message: `File uploaded and data inserted successfully into ${table}` });
 
-          await db.query(sql, [documentCode, title, description, typeId, createdBy, currentHandler, currentStatus, priority, createdAt, updatedAt]);
-      }
-
-      // Send response after successful insertion
-      res.json({ message: 'File uploaded and data inserted successfully' });
-
-  } catch (error) {
-      console.error('Error processing XLS file:', error);
-      res.status(500).json({ error: 'Error processing XLS file' });
-  } finally {
-      // Delete the uploaded file after processing
-      fs.unlink(req.file.path, (err) => {
-          if (err) {
-              console.error('Error deleting uploaded file:', err);
-          } else {
-              console.log('Uploaded file deleted');
-          }
-      });
-  }
+    } catch (error) {
+        console.error('Error processing XLS file:', error);
+        res.status(500).json({ error: 'Error processing XLS file' });
+    } finally {
+        // Delete the uploaded file after processing
+        fs.unlink(req.file.path, (err) => {
+            if (err) {
+                console.error('Error deleting uploaded file:', err);
+            }
+        });
+    }
 });
 
 // Routes

@@ -1,20 +1,46 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, MenuItem, Select, Snackbar, Alert } from '@mui/material';
 
 function Upload() {
     const [file, setFile] = useState(null);
+    const [selectedTable, setSelectedTable] = useState('');
     const [message, setMessage] = useState('');
-    const [open, setOpen] = useState(false); // State to control the modal
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarSeverity, setSnackbarSeverity] = useState('info'); // Snackbar severity: 'success', 'error', 'info', 'warning'
+
+    // List of tables for dropdown
+    const tables = [
+        'users',
+        'departments',
+        'documents',
+        'document_types',
+        'document_history',
+        'document_attachments',
+        'document_movements',
+        'notifications',
+    ];
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
 
+    const handleTableChange = (e) => {
+        setSelectedTable(e.target.value);
+    };
+
     const handleFileUpload = async () => {
         if (!file) {
             setMessage('Please select a file before uploading.');
-            setOpen(true);
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            return;
+        }
+
+        if (!selectedTable) {
+            setMessage('Please select a table before uploading.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
             return;
         }
 
@@ -22,22 +48,24 @@ function Upload() {
         formData.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:5000/upload-xls', formData, {
+            const response = await axios.post(`http://localhost:5000/upload-xls/${selectedTable}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-            setMessage(response.data.message); // Handle success message from server
+            setMessage(response.data.message || 'File uploaded successfully!');
+            setSnackbarSeverity('success'); // Success message
         } catch (error) {
             console.error('Error uploading file:', error);
             setMessage('File upload failed. Please try again.');
+            setSnackbarSeverity('error'); // Error message
         }
 
-        setOpen(true); // Show the modal after upload attempt
+        setSnackbarOpen(true); // Show snackbar after upload attempt
     };
 
-    const handleClose = () => {
-        setOpen(false); // Close the modal
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false); // Close the snackbar
     };
 
     return (
@@ -47,7 +75,7 @@ function Upload() {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
-                height: '70vh', // Full height to center vertically
+                height: '70vh',
                 textAlign: 'center',
                 padding: '20px',
             }}
@@ -56,34 +84,52 @@ function Upload() {
                 Upload XLS File
             </Typography>
 
+            {/* Dropdown for selecting table */}
+            <Select
+                value={selectedTable}
+                onChange={handleTableChange}
+                displayEmpty
+                style={{ marginBottom: '20px', width: '200px' }}
+            >
+                <MenuItem value="" disabled>
+                    Select Table
+                </MenuItem>
+                {tables.map((table) => (
+                    <MenuItem key={table} value={table}>
+                        {table}
+                    </MenuItem>
+                ))}
+            </Select>
+
+            {/* File input */}
             <input
                 type="file"
                 onChange={handleFileChange}
                 style={{ margin: '20px 0', display: 'block' }}
             />
 
+            {/* Upload Button */}
             <Button
                 variant="contained"
                 color="error"
-                size="medium"  // Set size to medium for a smaller button
+                size="medium"
                 onClick={handleFileUpload}
-                style={{ fontSize: '14px', padding: '8px 20px' }} // Adjust padding and fontSize
+                style={{ fontSize: '14px', padding: '8px 20px' }}
             >
                 Upload
             </Button>
 
-            {/* Modal to show the upload status */}
-            <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>File Upload Status</DialogTitle>
-                <DialogContent>
-                    <p>{message}</p>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color="error" variant="contained">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            {/* Snackbar for feedback */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={4000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Position: top center
+            >
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} variant="filled">
+                    {message}
+                </Alert>
+            </Snackbar>
         </div>
     );
 }
