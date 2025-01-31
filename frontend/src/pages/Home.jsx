@@ -98,16 +98,16 @@ function Home() {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Name</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Created At</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Updated At</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Name</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Created At</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Updated At</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {departmentData.map((dept) => (
                         <TableRow key={dept.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{dept.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{dept.id}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{dept.name}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(dept.created_at).toLocaleString()}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(dept.updated_at).toLocaleString()}</TableCell>
@@ -123,17 +123,17 @@ function Home() {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Name</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Description</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Created At</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Updated At</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Name</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Description</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Created At</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Updated At</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {typeData.map((type) => (
                         <TableRow key={type.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{type.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{type.id}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{type.name}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{type.description}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(type.created_at).toLocaleString()}</TableCell>
@@ -150,22 +150,22 @@ function Home() {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>User ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Message</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Is Read</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Timestamp</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>User ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Document ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Message</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Is Read</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Timestamp</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {notifications.map((notification) => (
                         <TableRow key={notification.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{notification.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{notification.user_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{notification.document_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{notification.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{notification.user_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{notification.document_id}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{notification.message}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{notification.is_read ? 'Yes' : 'No'}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{notification.is_read ? 'Yes' : 'No'}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(notification.timestamp).toLocaleString()}</TableCell>
                         </TableRow>
                     ))}
@@ -179,30 +179,30 @@ function Home() {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document Code</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Title</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Description</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Type ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Created By</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Current Handler</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Current Status</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Priority</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Created At</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Updated At</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Document Code</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Title</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Description</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Type ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Created By</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Current Handler</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Current Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Priority</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Created At</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Updated At</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {documentData.map((doc) => (
                         <TableRow key={doc.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.document_code}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{doc.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{doc.document_code}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{doc.title}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{doc.description}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.type_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.created_by}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.current_handler}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.current_status}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{doc.type_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{doc.created_by}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{doc.current_handler}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{doc.current_status}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{doc.priority}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(doc.created_at).toLocaleString()}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(doc.updated_at).toLocaleString()}</TableCell>
@@ -218,22 +218,22 @@ function Home() {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>File Name</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>File Path</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Uploaded By</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Uploaded At</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Document ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>File Name</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>File Path</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Uploaded By</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Uploaded At</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {attachmentData.map((att) => (
                         <TableRow key={att.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{att.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{att.document_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{att.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{att.document_id}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{att.file_name}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{att.file_path}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{att.uploaded_by}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{att.uploaded_by}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(att.uploaded_at).toLocaleString()}</TableCell>
                         </TableRow>
                     ))}
@@ -247,27 +247,27 @@ function Home() {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Status</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>From User ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>To User ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>From Department ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>To Department ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Remarks</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Timestamp</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Document ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>From User ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>To User ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>From Department ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>To Department ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Remarks</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Timestamp</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {movementData.map((move) => (
                         <TableRow key={move.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{move.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{move.document_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{move.status}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{move.from_user_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{move.to_user_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{move.from_department_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{move.to_department_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{move.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{move.document_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{move.status}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{move.from_user_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{move.to_user_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{move.from_department_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{move.to_department_id}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{move.remarks}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(move.timestamp).toLocaleString()}</TableCell>
                         </TableRow>
@@ -282,28 +282,28 @@ function Home() {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Changed By</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Change Type</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Previous Status</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>New Status</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Previous Handler</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>New Handler</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Timestamp</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Document ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Changed By</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Change Type</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Previous Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>New Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Previous Handler</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>New Handler</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>Timestamp</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {historyData.map((entry) => (
                         <TableRow key={entry.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.document_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.changed_by}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.change_type}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.previous_status}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.new_status}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.previous_handler}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.new_handler}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{entry.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{entry.document_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{entry.changed_by}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{entry.change_type}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{entry.previous_status}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{entry.new_status}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{entry.previous_handler}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center'  }}>{entry.new_handler}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{new Date(entry.timestamp).toLocaleString()}</TableCell>
                         </TableRow>
                     ))}

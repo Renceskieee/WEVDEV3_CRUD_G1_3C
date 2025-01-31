@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Box, List, ListItem, ListItemText, Drawer, Button, Dialog, DialogTitle, DialogContent, DialogActions, Paper } from '@mui/material';
 import axios from 'axios';
+import Sidebar from './components/Sidebar';
 import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -17,29 +18,16 @@ import Type from "./components/Type";
 import History from "./components/History";
 import Upload from "./components/Upload";
 import Profile from "./components/Profile";
-import {
-  House,
-  DoorClosed,
-  Bell,
-  File,
-  SquareActivity,
-  FileType2Icon,
-  Paperclip,
-  Upload as UploadIcon,
-  History as HistoryIcon,
-  Info,
-  Mail,
-  SquareUserRound,
-  Settings
-} from "lucide-react";
 
-const drawerWidth = 240;
+const drawerWidth = 180;
+const compactDrawerWidth = 120;
 
 function App() {
   const [settings, setSettings] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false); // State for logout dialog
   const [activeNavIndex, setActiveNavIndex] = useState(0); // Active navigation state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fetchSettings = async () => {
     try {
@@ -77,29 +65,31 @@ function App() {
   return (
     <Router>
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        {/* Header - shown only when authenticated */}
-        {isAuthenticated && (
-          <AppBar
-            position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: settings.header_color || 'primary' }}
-          >
-            <Toolbar>
-              {settings.logo_url && (
-                <img
-                  src={`http://localhost:5000${settings.logo_url}`}
-                  alt="Logo"
-                  style={{ height: '40px', marginRight: '10px' }}
-                />
-              )}
-              <Typography 
-                variant="h6" 
-                noWrap 
-                sx={{
-                  color: settings.company_name_color || 'inherit' // Apply company name color
-                }}
-              >
-                {settings.company_name || 'My Company Name'}
-              </Typography>
+        {/* Header - always visible */}
+        <AppBar
+          position="fixed"
+          sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, bgcolor: settings.header_color || 'primary' }}
+        >
+          <Toolbar>
+            {settings.logo_url && (
+              <img
+                src={`http://localhost:5000${settings.logo_url}`}
+                alt="Logo"
+                style={{ height: '40px', marginRight: '10px' }}
+              />
+            )}
+            <Typography 
+              variant="h6" 
+              noWrap 
+              sx={{
+                color: settings.company_name_color || 'inherit' // Apply company name color
+              }}
+            >
+              {settings.company_name || 'My Company Name'}
+            </Typography>
+
+            {/* Conditionally render the Logout button if authenticated */}
+            {isAuthenticated && (
               <Button
                 onClick={handleLogout}
                 variant="contained"
@@ -111,223 +101,36 @@ function App() {
               >
                 Log out
               </Button>
-            </Toolbar>
-          </AppBar>
-        )}
+            )}
+          </Toolbar>
+        </AppBar>
 
-        {/* Sidebar - shown only when authenticated */}
-        {isAuthenticated && (
-          <Drawer
-            variant="permanent"
-            sx={{
-              width: drawerWidth,
-              flexShrink: 0,
-              '& .MuiDrawer-paper': {
-                width: drawerWidth,
-                boxSizing: 'border-box',
-              },
-            }}
-          >
-            <Toolbar />
-            <List>
-              <ListItem
-                button
-                component={Link}
-                to="/home"
-                selected={activeNavIndex === 0}
-                onClick={() => setActiveNavIndex(0)}
-                style={{
-                  backgroundColor: activeNavIndex === 0 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <House style={{ marginRight: '10px' }} />
-                <ListItemText primary="Home" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/notification"
-                selected={activeNavIndex === 1}
-                onClick={() => setActiveNavIndex(1)}
-                style={{
-                  backgroundColor: activeNavIndex === 1 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <Bell style={{ marginRight: '10px' }} />
-                <ListItemText primary="Notifications" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/department"
-                selected={activeNavIndex === 2}
-                onClick={() => setActiveNavIndex(2)}
-                style={{
-                  backgroundColor: activeNavIndex === 2 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <DoorClosed style={{ marginRight: '10px' }} />
-                <ListItemText primary="Departments" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/document"
-                selected={activeNavIndex === 3}
-                onClick={() => setActiveNavIndex(3)}
-                style={{
-                  backgroundColor: activeNavIndex === 3 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <File style={{ marginRight: '10px' }} />
-                <ListItemText primary="Documents" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/attachment"
-                selected={activeNavIndex === 4}
-                onClick={() => setActiveNavIndex(4)}
-                style={{
-                  backgroundColor: activeNavIndex === 4 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <Paperclip style={{ marginRight: '10px' }} />
-                <ListItemText primary="Attachments" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/movement"
-                selected={activeNavIndex === 5}
-                onClick={() => setActiveNavIndex(5)}
-                style={{
-                  backgroundColor: activeNavIndex === 5 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <SquareActivity style={{ marginRight: '10px' }} />
-                <ListItemText primary="Movements" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/type"
-                selected={activeNavIndex === 6}
-                onClick={() => setActiveNavIndex(6)}
-                style={{
-                  backgroundColor: activeNavIndex === 6 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <FileType2Icon style={{ marginRight: '10px' }} />
-                <ListItemText primary="Types" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/history"
-                selected={activeNavIndex === 7}
-                onClick={() => setActiveNavIndex(7)}
-                style={{
-                  backgroundColor: activeNavIndex === 7 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <HistoryIcon style={{ marginRight: '10px' }} />
-                <ListItemText primary="History" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/upload"
-                selected={activeNavIndex === 8}
-                onClick={() => setActiveNavIndex(8)}
-                style={{
-                  backgroundColor: activeNavIndex === 8 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <UploadIcon style={{ marginRight: '10px' }} />
-                <ListItemText primary="Upload" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/profile"
-                selected={activeNavIndex === 9}
-                onClick={() => setActiveNavIndex(9)}
-                style={{
-                  backgroundColor: activeNavIndex === 9 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <SquareUserRound style={{ marginRight: '10px' }} />
-                <ListItemText primary="Users" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/contact"
-                selected={activeNavIndex === 10}
-                onClick={() => setActiveNavIndex(10)}
-                style={{
-                  backgroundColor: activeNavIndex === 10 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <Mail style={{ marginRight: '10px' }} />
-                <ListItemText primary="Contact" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/about"
-                selected={activeNavIndex === 11}
-                onClick={() => setActiveNavIndex(11)}
-                style={{
-                  backgroundColor: activeNavIndex === 11 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <Info style={{ marginRight: '10px' }} />
-                <ListItemText primary="About" />
-              </ListItem>
-
-              <ListItem
-                button
-                component={Link}
-                to="/settings"
-                selected={activeNavIndex === 12}
-                onClick={() => setActiveNavIndex(12)}
-                style={{
-                  backgroundColor: activeNavIndex === 12 ? settings.active_nav_index_color || '#1976d2' : 'transparent',
-                }}
-              >
-                <Settings style={{ marginRight: '10px' }} />
-                <ListItemText primary="Settings" />
-              </ListItem>
-            </List>
-          </Drawer>
-        )}
+        {/* Sidebar */}
+        {isAuthenticated && <Sidebar settings={settings} setIsSidebarOpen={setIsSidebarOpen} />}
 
         {/* Main Content */}
         <Box
           component="main"
-          sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, marginLeft: `${drawerWidth}px` }}
+          sx={{
+            flexGrow: 1,
+            bgcolor: 'background.default',
+            p: 3,
+            marginLeft: isSidebarOpen ? `${drawerWidth}px` : `${compactDrawerWidth}px`,
+            transition: 'margin-left 0.3s ease-in-out',
+            width: '85%',
+            display: 'flex',
+            justifyContent: 'center',
+            paddingTop: '80px',
+            paddingBottom: '60px',
+          }}
         >
           <Toolbar />
           <Routes>
+            {/* Authenticated Routes */}
             <Route path="/home" element={isAuthenticated ? <Home /> : <Navigate to="/login" />} />
             <Route path="/about" element={isAuthenticated ? <About /> : <Navigate to="/login" />} />
             <Route path="/contact" element={isAuthenticated ? <Contact /> : <Navigate to="/login" />} />
             <Route path="/settings" element={isAuthenticated ? <SettingsForm onUpdate={fetchSettings} /> : <Navigate to="/login" />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login onLoginSuccess={onLoginSuccess} />} />
             <Route path="/notification" element={isAuthenticated ? <Notification /> : <Navigate to="/login" />} />
             <Route path="/department" element={isAuthenticated ? <Department /> : <Navigate to="/login" />} />
             <Route path="/document" element={isAuthenticated ? <Document /> : <Navigate to="/login" />} />
@@ -337,6 +140,12 @@ function App() {
             <Route path="/history" element={isAuthenticated ? <History /> : <Navigate to="/login" />} />
             <Route path="/upload" element={isAuthenticated ? <Upload /> : <Navigate to="/login" />} />
             <Route path="/profile" element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} />
+
+            {/* Public Routes */}
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={!isAuthenticated ? <Login onLoginSuccess={onLoginSuccess} /> : <Navigate to="/home" />} />
+
+            {/* Redirect to /home or /login based on authentication */}
             <Route path="/" element={isAuthenticated ? <Navigate to="/home" /> : <Navigate to="/login" />} />
           </Routes>
         </Box>
@@ -375,7 +184,7 @@ function App() {
             <Typography>You have successfully logged out.</Typography>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseLogoutDialog} color="error">Close</Button>
+            <Button onClick={handleCloseLogoutDialog} color="error" variant='contained'>Close</Button>
           </DialogActions>
         </Dialog>
       </Box>

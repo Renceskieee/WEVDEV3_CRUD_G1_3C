@@ -17,6 +17,13 @@ const Register = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     const handleRegister = async () => {
+        // Validate form fields
+        if (!formData.username || !formData.email || !formData.password) {
+            setErrorMessage('Please fill out all fields.');
+            setOpenError(true);
+            return; // Stop execution if validation fails
+        }
+
         try {
             // Make the registration request to your server
             await axios.post('http://localhost:5000/register', formData);
@@ -59,7 +66,8 @@ const Register = () => {
                     height: '60vh', 
                     gap: 2, 
                     maxWidth: '400px', 
-                    margin: 'auto', 
+                    marginLeft: '405px', 
+                    marginTop: '20px',
                     transform: 'translateX(-100px)',
                 }}
             >
@@ -116,7 +124,7 @@ const Register = () => {
                     <p>Registration completed successfully! You will be redirected shortly.</p>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseSuccess} color="primary">Close</Button>
+                    <Button onClick={handleCloseSuccess} color="error" variant='contained'>Close</Button>
                 </DialogActions>
             </Dialog>
 
@@ -127,7 +135,7 @@ const Register = () => {
                     <p>{errorMessage}</p>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseError} color="primary">Close</Button>
+                    <Button onClick={handleCloseError} color="error" variant='contained'>Close</Button>
                 </DialogActions>
             </Dialog>
         </Container>

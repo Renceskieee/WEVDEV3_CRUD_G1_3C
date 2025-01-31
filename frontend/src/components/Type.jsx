@@ -14,7 +14,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
+import { Edit, Delete, Print } from '@mui/icons-material';
 import axios from "axios";
 
 const Type = () => {
@@ -131,6 +131,47 @@ const Type = () => {
     setSnackbarOpen(false);
   };
 
+  const printTable = () => {
+    const printWindow = window.open('', '', 'width=800,height=600');
+    
+    const tableContent = `
+            <html>
+                <link rel="icon" type="image/png" href="./src/assets/EARIST_Logo.png" />
+            <head>
+                <title>Group 1</title>
+              <style>
+                  table { width: 100%; border-collapse: collapse; }
+                  th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                  th { background-color: yellow; }
+              </style>
+          </head>
+          <body>
+              <h2>Document Types</h2>
+              <table>
+                  <thead>
+                      <tr>
+                          <th><center>Name</center></th>
+                          <th><center>Description</center></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      ${documentTypes.map(type => `
+                          <tr>
+                              <td>${type.name}</td>
+                              <td>${type.description}</td>
+                          </tr>
+                      `).join('')}
+                  </tbody>
+              </table>
+          </body>
+          </html>
+      `;
+
+      printWindow.document.write(tableContent);
+      printWindow.document.close();
+      printWindow.print();
+  };    
+
   return (
     <Container>
       <Typography variant="h5" sx={{ margin: "20px 0" }}>
@@ -175,14 +216,14 @@ const Type = () => {
             </Button>
           </>
         ) : (
-          <Button
-            onClick={addDocumentType}
-            variant="contained"
-            color="error"
-            sx={{ marginTop: "10px" }}
-          >
-            Add Document Type
-          </Button>
+          <div>
+              <Button onClick={addDocumentType} variant="contained" color="error" sx={{ marginTop: '10px' }}>
+                  Add Document Type
+              </Button>
+              <Button onClick={printTable} variant="contained" color="info" sx={{ marginTop: '10px', marginLeft: '10px' }} startIcon={<Print />}>
+                  Print
+              </Button>
+          </div>
         )}
       </Box>
 
@@ -194,35 +235,37 @@ const Type = () => {
       >
         <TableHead>
           <TableRow sx={{ backgroundColor: "yellow" }}>
-            <TableCell>ID</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Description</TableCell>
-            <TableCell>Actions</TableCell>
+            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>ID</TableCell>
+            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Name</TableCell>
+            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Description</TableCell>
+            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {documentTypes.map((type) => (
             <TableRow key={type.id}>
-              <TableCell>{type.id}</TableCell>
+              <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{type.id}</TableCell>
               <TableCell>{type.name}</TableCell>
               <TableCell>{type.description}</TableCell>
               <TableCell>
-                <IconButton
-                  color="primary"
-                  onClick={() => {
-                    setEditId(type.id);
-                    setEditName(type.name);
-                    setEditDescription(type.description);
-                  }}
-                >
-                  <Edit />
-                </IconButton>
-                <IconButton
-                  color="error"
-                  onClick={() => deleteDocumentType(type.id)}
-                >
-                  <Delete />
-                </IconButton>
+                <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>                                    
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      setEditId(type.id);
+                      setEditName(type.name);
+                      setEditDescription(type.description);
+                    }}
+                  >
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={() => deleteDocumentType(type.id)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </div>
               </TableCell>
             </TableRow>
           ))}

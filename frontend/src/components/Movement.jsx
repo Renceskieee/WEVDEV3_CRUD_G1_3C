@@ -18,7 +18,7 @@ import {
     Alert,
     IconButton,
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material'; // Importing icons
+import { Edit, Delete, Print } from '@mui/icons-material';
 
 const Movements = () => {
     const [data, setData] = useState([]);
@@ -159,6 +159,51 @@ const Movements = () => {
     const handleCloseSnackbar = () => {
         setSnackbar({ ...snackbar, open: false });
     };
+    
+    const printTable = () => {
+        const printWindow = window.open('', '', 'width=800,height=600');
+        
+        const tableContent = `
+            <html>
+                <link rel="icon" type="image/png" href="./src/assets/EARIST_Logo.png" />
+            <head>
+                <title>Group 1</title>
+                <style>
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                    th { background-color: yellow; }
+                </style>
+            </head>
+            <body>
+                <h2>Document Movements</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><center>Document ID</center></th>
+                            <th><center>Status</center></th>
+                            <th><center>Remarks</center></th>
+                            <th><center>Timestamp</center></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(movement => `
+                            <tr>
+                                <td><center>${movement.document_id}</center></td>
+                                <td><center>${movement.status}</center></td>
+                                <td><center>${movement.remarks}</center></td>
+                                <td><center>${new Date(movement.timestamp).toLocaleString()}</center></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+    
+        printWindow.document.write(tableContent);
+        printWindow.document.close();
+        printWindow.print();
+    };    
 
     return (
         <Container>
@@ -228,44 +273,51 @@ const Movements = () => {
                         </Button>
                     </>
                 ) : (
-                    <Button onClick={addMovement} variant="contained" color="error" sx={{ marginTop: '10px' }}>
-                        Add Movement
-                    </Button>
+                    <div>
+                        <Button onClick={addMovement} variant="contained" color="error" sx={{ marginTop: '10px' }}>
+                            Add Movement
+                        </Button>
+                        <Button onClick={printTable} variant="contained" color="info" sx={{ marginTop: '10px', marginLeft: '10px' }} startIcon={<Print />}>
+                            Print
+                        </Button>
+                    </div>
                 )}
             </div>
 
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Status</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>From User ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>To User ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>From Department ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>To Department ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Remarks</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Actions</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Document ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>From User ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>To User ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>From Department ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>To Department ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Remarks</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {data.map((movement) => (
                         <TableRow key={movement.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{movement.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{movement.document_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{movement.status}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{movement.from_user_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{movement.to_user_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{movement.from_department_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{movement.to_department_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{movement.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{movement.document_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{movement.status}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{movement.from_user_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{movement.to_user_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{movement.from_department_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{movement.to_department_id}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{movement.remarks}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
-                                <IconButton onClick={() => handleEditClick(movement)} color="primary">
-                                    <Edit />
-                                </IconButton>
-                                <IconButton onClick={() => deleteMovement(movement.id)} color="error">
-                                    <Delete />
-                                </IconButton>
+                                <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                                    <IconButton onClick={() => handleEditClick(movement)} color="primary">
+                                        <Edit />
+                                    </IconButton>
+                                    <IconButton onClick={() => deleteMovement(movement.id)} color="error">
+                                        <Delete />
+                                    </IconButton>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}

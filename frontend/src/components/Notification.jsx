@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField, Container, Typography, Snackbar, Alert, IconButton } from '@mui/material';
 import axios from 'axios';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, Print } from '@mui/icons-material';
 
 const Notification = () => {
     const [data, setData] = useState([]);
@@ -95,6 +95,47 @@ const Notification = () => {
         setSnackbar({ ...snackbar, open: false });
     };
 
+    const printTable = () => {
+        const printWindow = window.open('', '', 'width=800,height=600');
+        
+        const tableContent = `
+            <html>
+                <link rel="icon" type="image/png" href="./src/assets/EARIST_Logo.png" />
+            <head>
+                <title>Group 1</title>
+                <style>
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                    th { background-color: yellow; }
+                </style>
+            </head>
+            <body>
+                <h2>Notifications</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><center>Message</center></th>
+                            <th><center>Date & Time</center></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(notification => `
+                            <tr>
+                                <td><center>${notification.message}</center></td>
+                                <td><center>${new Date(notification.timestamp).toLocaleString()}</center></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+    
+        printWindow.document.write(tableContent);
+        printWindow.document.close();
+        printWindow.print();
+    };    
+
     return (
         <Container>
             <Typography variant="h5" sx={{ margin: '20px 0' }}>
@@ -123,18 +164,23 @@ const Notification = () => {
                 />
 
                 {editNotification ? (
-                    <>
+                    <div>
                         <Button onClick={updateNotification} variant="contained" color="error" sx={{ marginTop: '10px' }}>
                             Update Notification
                         </Button>
                         <Button onClick={resetForm} variant="outlined" sx={{ marginTop: '10px', marginLeft: '10px' }}>
                             Cancel Edit
                         </Button>
-                    </>
+                    </div>
                 ) : (
-                    <Button onClick={addNotification} variant="contained" color="error" sx={{ marginTop: '10px' }}>
-                        Add Notification
-                    </Button>
+                    <div>
+                        <Button onClick={addNotification} variant="contained" color="error" sx={{ marginTop: '10px' }}>
+                            Add Notification
+                        </Button>
+                        <Button onClick={printTable} variant="contained" color="info" sx={{ marginTop: '10px', marginLeft: '10px' }} startIcon={<Print />}>
+                            Print
+                        </Button>
+                    </div>
                 )}
             </div>
 
@@ -142,27 +188,29 @@ const Notification = () => {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>User ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Message</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Actions</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>User ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Document ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Message</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {data.map((notification) => (
                         <TableRow key={notification.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{notification.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{notification.user_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{notification.document_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{notification.message}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{notification.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{notification.user_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{notification.document_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{notification.message}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
-                                <IconButton onClick={() => handleEditClick(notification)} color="primary">
-                                    <Edit />
-                                </IconButton>
-                                <IconButton onClick={() => deleteNotification(notification.id)} color="error">
-                                    <Delete />
-                                </IconButton>
+                                <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>                                    
+                                    <IconButton onClick={() => handleEditClick(notification)} color="primary">
+                                        <Edit />
+                                    </IconButton>
+                                    <IconButton onClick={() => deleteNotification(notification.id)} color="error">
+                                        <Delete />
+                                    </IconButton>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}

@@ -14,7 +14,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, Print } from "@mui/icons-material"; // Added Print icon
 import axios from "axios";
 
 const Department = () => {
@@ -24,9 +24,12 @@ const Department = () => {
   const [editName, setEditName] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // 'success' or 'error'
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  // Fetch all departments
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
+
   const fetchDepartments = async () => {
     try {
       const response = await axios.get("http://localhost:5000/departments");
@@ -36,42 +39,26 @@ const Department = () => {
     }
   };
 
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
-
-  // Add a new department
   const addDepartment = async () => {
     if (!newName) {
-      setSnackbarMessage("Name is required!");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar("Name is required!", "error");
       return;
     }
 
     try {
-      await axios.post("http://localhost:5000/departments", {
-        name: newName,
-      });
+      await axios.post("http://localhost:5000/departments", { name: newName });
       setNewName("");
-      setSnackbarMessage("Department added successfully!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      showSnackbar("Department added successfully!", "success");
       fetchDepartments();
     } catch (error) {
       console.error("Error adding department:", error);
-      setSnackbarMessage("Failed to add department!");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar("Failed to add department!", "error");
     }
   };
 
-  // Update an existing department
   const updateDepartment = async () => {
     if (!editName) {
-      setSnackbarMessage("Name is required!");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar("Name is required!", "error");
       return;
     }
 
@@ -81,44 +68,80 @@ const Department = () => {
       });
       setEditId(null);
       setEditName("");
-      setSnackbarMessage("Department updated successfully!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      showSnackbar("Department updated successfully!", "success");
       fetchDepartments();
     } catch (error) {
       console.error("Error updating department:", error);
-      setSnackbarMessage("Failed to update department!");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar("Failed to update department!", "error");
     }
   };
 
-  // Delete a department
   const deleteDepartment = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/departments/${id}`);
+      showSnackbar("Department deleted successfully!", "success");
       fetchDepartments();
-      setSnackbarMessage("Department deleted successfully!");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
     } catch (error) {
       console.error("Error deleting department:", error);
-      setSnackbarMessage("Failed to delete department!");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      showSnackbar("Failed to delete department!", "error");
     }
   };
 
-  // Reset form fields
   const resetForm = () => {
     setEditId(null);
     setEditName("");
     setNewName("");
   };
 
-  // Handle Snackbar Close
+  const showSnackbar = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
+  };
+
+  const printTable = () => {
+    const printWindow = window.open("", "", "width=800,height=600");
+
+    const tableContent = `
+        <html>
+            <link rel="icon" type="image/png" href="./src/assets/EARIST_Logo.png" />
+        <head>
+            <title>Group 1</title>
+            <style>
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                th { background-color: yellow; }
+            </style>
+        </head>
+        <body>
+            <h2>Departments</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th><center>Name</center></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${departments.map(
+                      (dept) => `
+                        <tr>
+                            <td>${dept.name}</td>
+                        </tr>
+                    `
+                    ).join("")}
+                </tbody>
+            </table>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(tableContent);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   return (
@@ -155,14 +178,25 @@ const Department = () => {
             </Button>
           </>
         ) : (
-          <Button
-            onClick={addDepartment}
-            variant="contained"
-            color="error"
-            sx={{ marginTop: "10px" }}
-          >
-            Add Department
-          </Button>
+          <>
+            <Button
+              onClick={addDepartment}
+              variant="contained"
+              color="error"
+              sx={{ marginTop: "10px" }}
+            >
+              Add Department
+            </Button>
+            <Button
+              onClick={printTable}
+              variant="contained"
+              color="info"
+              sx={{ marginTop: "10px", marginLeft: "10px" }}
+              startIcon={<Print />}
+            >
+              Print
+            </Button>
+          </>
         )}
       </Box>
 
@@ -174,39 +208,40 @@ const Department = () => {
       >
         <TableHead>
           <TableRow sx={{ backgroundColor: "yellow" }}>
-            <TableCell>ID</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Actions</TableCell>
+            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>ID</TableCell>
+            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Name</TableCell>
+            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {departments.map((dept) => (
             <TableRow key={dept.id}>
-              <TableCell>{dept.id}</TableCell>
+              <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{dept.id}</TableCell>
               <TableCell>{dept.name}</TableCell>
               <TableCell>
-                <IconButton
-                  color="primary"
-                  onClick={() => {
-                    setEditId(dept.id);
-                    setEditName(dept.name);
-                  }}
-                >
-                  <Edit />
-                </IconButton>
-                <IconButton
-                  color="error"
-                  onClick={() => deleteDepartment(dept.id)}
-                >
-                  <Delete />
-                </IconButton>
+                <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>                                    
+                  <IconButton
+                    color="primary"
+                    onClick={() => {
+                      setEditId(dept.id);
+                      setEditName(dept.name);
+                    }}
+                  >
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    color="error"
+                    onClick={() => deleteDepartment(dept.id)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
-      {/* Snackbar for success/error messages */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}

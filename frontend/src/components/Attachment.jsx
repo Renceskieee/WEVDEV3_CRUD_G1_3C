@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField, Container, Typography, Snackbar, Alert, IconButton } from '@mui/material';
 import axios from 'axios';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, Print } from '@mui/icons-material';
 
 const Attachment = () => {
     const [data, setData] = useState([]);
@@ -100,6 +100,49 @@ const Attachment = () => {
         setSnackbar({ ...snackbar, open: false });
     };
 
+    const printTable = () => {
+        const printWindow = window.open('', '', 'width=800,height=600');
+        
+        const tableContent = `
+            <html>
+                <link rel="icon" type="image/png" href="./src/assets/EARIST_Logo.png" />
+            <head>
+                <title>Group 1</title>
+                <style>
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                    th { background-color: yellow; }
+                </style>
+            </head>
+            <body>
+                <h2>Document Attachments</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><center>File Name</center></th>
+                            <th><center>File Path</center></th>
+                            <th><center>Uploaded at</center></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(att => `
+                            <tr>
+                                <td><center>${att.file_name}</center></td>
+                                <td><center>${att.file_path}</center></td>
+                                <td><center>${new Date(att.uploaded_at).toLocaleString()}</center></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+    
+        printWindow.document.write(tableContent);
+        printWindow.document.close();
+        printWindow.print();
+    };    
+
     return (
         <Container>
             <Typography variant="h5" sx={{ margin: '20px 0' }}>
@@ -143,9 +186,14 @@ const Attachment = () => {
                         </Button>
                     </>
                 ) : (
-                    <Button onClick={addAttachment} variant="contained" color="error" sx={{ marginTop: '10px' }}>
-                        Add Attachment
-                    </Button>
+                    <div>
+                        <Button onClick={addAttachment} variant="contained" color="error" sx={{ marginTop: '10px' }}>
+                            Add Attachment
+                        </Button>
+                        <Button onClick={printTable} variant="contained" color="info" sx={{ marginTop: '10px', marginLeft: '10px' }} startIcon={<Print />}>
+                            Print
+                        </Button>
+                    </div>
                 )}
             </div>
 
@@ -153,29 +201,31 @@ const Attachment = () => {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>File Name</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>File Path</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Uploaded By</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Actions</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Document ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>File Name</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>File Path</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Uploaded By</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {data.map((att) => (
                         <TableRow key={att.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{att.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{att.document_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{att.file_name}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{att.file_path}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{att.uploaded_by}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{att.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{att.document_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{att.file_name}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{att.file_path}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{att.uploaded_by}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
-                                <IconButton onClick={() => handleEditClick(att)} color="primary">
-                                    <Edit />
-                                </IconButton>
-                                <IconButton onClick={() => deleteAttachment(att.id)} color="error">
-                                    <Delete />
-                                </IconButton>
+                                <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>                                    
+                                    <IconButton onClick={() => handleEditClick(att)} color="primary">
+                                        <Edit />
+                                    </IconButton>
+                                    <IconButton onClick={() => deleteAttachment(att.id)} color="error">
+                                        <Delete />
+                                    </IconButton>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}

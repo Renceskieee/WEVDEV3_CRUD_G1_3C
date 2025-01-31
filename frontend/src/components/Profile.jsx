@@ -193,33 +193,35 @@ const Profile = () => {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Username</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>First Name</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Last Name</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Email</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Role</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Department ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Actions</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Username</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>First Name</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Last Name</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Email</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Role</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Department ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {users.map((user) => (
                         <TableRow key={user.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{user.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{user.id}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.username}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.first_name}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.last_name}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{user.email}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{user.role}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{user.department_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{user.role}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{user.department_id}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
-                                <IconButton onClick={() => handleEditClick(user)} color="primary">
-                                    <Edit />
-                                </IconButton>
-                                <IconButton onClick={() => deleteUser(user.id)} color="error">
-                                    <Delete />
-                                </IconButton>
+                                <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>                                    
+                                    <IconButton onClick={() => handleEditClick(user)} color="primary">
+                                        <Edit />
+                                    </IconButton>
+                                    <IconButton onClick={() => deleteUser(user.id)} color="error">
+                                        <Delete />
+                                    </IconButton>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}

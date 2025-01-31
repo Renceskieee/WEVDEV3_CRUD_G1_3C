@@ -18,7 +18,7 @@ import {
     Alert,
     IconButton,
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material'; // Importing icons
+import { Edit, Delete, Print } from '@mui/icons-material';
 
 const Dashboard = () => {
     const [data, setData] = useState([]);
@@ -173,6 +173,55 @@ const Dashboard = () => {
         setSnackbar({ ...snackbar, open: false });
     };
 
+    const printTable = () => {
+        const printWindow = window.open('', '', 'width=800,height=600');
+        
+        const tableContent = `
+            <html>
+                <link rel="icon" type="image/png" href="./src/assets/EARIST_Logo.png" />
+            <head>
+                <title>Group 1</title>
+                <style>
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                    th { background-color: yellow; }
+                </style>
+            </head>
+            <body>
+                <h2>Documents</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><center>Document Code</center></th>
+                            <th><center>Title</center></th>
+                            <th><center>Description</center></th> 
+                            <th><center>Status</center></th>                           
+                            <th><center>Priority</center></th>                                                      
+                            <th><center>Created at</center></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(doc => `
+                            <tr>
+                                <td><center>${doc.document_code}</center></td>
+                                <td>${doc.title}</td>
+                                <td>${doc.description}</td>
+                                <td><center>${doc.current_status}</center></td>
+                                <td><center>${doc.priority}</center></td>
+                                <td><center>${new Date(doc.created_at).toLocaleString()}</center></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+    
+        printWindow.document.write(tableContent);
+        printWindow.document.close();
+        printWindow.print();
+    };    
+
     return (
         <Container>
             <Typography variant="h5" sx={{ margin: '20px 0' }}>
@@ -258,9 +307,14 @@ const Dashboard = () => {
                         </Button>
                     </>
                 ) : (
-                    <Button onClick={addDocument} variant="contained" color="error" sx={{ marginTop: '10px' }}>
-                        Add Document
-                    </Button>
+                    <div>
+                        <Button onClick={addDocument} variant="contained" color="error" sx={{ marginTop: '10px' }}>
+                            Add Notification
+                        </Button>
+                        <Button onClick={printTable} variant="contained" color="info" sx={{ marginTop: '10px', marginLeft: '10px' }} startIcon={<Print />}>
+                            Print
+                        </Button>
+                    </div>
                 )}
             </div>
 
@@ -268,37 +322,39 @@ const Dashboard = () => {
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document Code</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Title</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Description</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Type</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Created By</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Current Handler</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Status</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Priority</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Actions</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Document Code</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Title</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Description</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Type</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Created By</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Current Handler</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Priority</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {data.map((doc) => (
                         <TableRow key={doc.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.document_code}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{doc.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{doc.document_code}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{doc.title}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>{doc.description}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.type_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.created_by}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.current_handler}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.current_status}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{doc.priority}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{doc.type_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{doc.created_by}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{doc.current_handler}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{doc.current_status}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{doc.priority}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
-                                <IconButton onClick={() => handleEditClick(doc)} color="primary">
-                                    <Edit />
-                                </IconButton>
-                                <IconButton onClick={() => deleteDocument(doc.id)} color="error">
-                                    <Delete />
-                                </IconButton>
+                                <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
+                                    <IconButton onClick={() => handleEditClick(doc)} color="primary">
+                                        <Edit />
+                                    </IconButton>
+                                    <IconButton onClick={() => deleteDocument(doc.id)} color="error">
+                                        <Delete />
+                                    </IconButton>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField, Container, Typography, Snackbar, Alert, IconButton, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 import axios from 'axios';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, Print } from '@mui/icons-material';
 
 const History = () => {
     const [data, setData] = useState([]);
@@ -117,6 +117,53 @@ const History = () => {
     const handleCloseSnackbar = () => {
         setSnackbar({ ...snackbar, open: false });
     };
+    
+    const printTable = () => {
+        const printWindow = window.open('', '', 'width=800,height=600');
+        
+        const tableContent = `
+            <html>
+                <link rel="icon" type="image/png" href="./src/assets/EARIST_Logo.png" />
+            <head>
+                <title>Group 1</title>
+                <style>
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                    th { background-color: yellow; }
+                </style>
+            </head>
+            <body>
+                <h2>Document History</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th><center>Document ID</center></th>
+                            <th><center>Change Type</center></th>
+                            <th><center>Previous Status</center></th>
+                            <th><center>New Status</center></th>
+                            <th><center>Timestamp</center></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(entry => `
+                            <tr>
+                                <td><center>${entry.document_id}</center></td>
+                                <td><center>${entry.change_type}</center></td>
+                                <td><center>${entry.previous_status}</center></td>
+                                <td><center>${entry.new_status}</center></td>
+                                <td><center>${new Date(entry.timestamp).toLocaleString()}</center></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+    
+        printWindow.document.write(tableContent);
+        printWindow.document.close();
+        printWindow.print();
+    };    
 
     return (
         <Container>
@@ -187,44 +234,51 @@ const History = () => {
                         </Button>
                     </>
                 ) : (
-                    <Button onClick={addHistory} variant="contained" color="error" sx={{ marginTop: '10px' }}>
-                        Add Entry
-                    </Button>
+                    <div>
+                        <Button onClick={addHistory} variant="contained" color="error" sx={{ marginTop: '10px' }}>
+                            Add Entry
+                        </Button>
+                        <Button onClick={printTable} variant="contained" color="info" sx={{ marginTop: '10px', marginLeft: '10px' }} startIcon={<Print />}>
+                            Print
+                        </Button>
+                    </div>
                 )}
             </div>
 
             <Table sx={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <TableHead sx={{ backgroundColor: 'yellow' }}>
                     <TableRow>
-                        <TableCell sx={{ border: '1px solid black' }}>ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Document ID</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Changed By</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Change Type</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Previous Status</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>New Status</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Previous Handler</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>New Handler</TableCell>
-                        <TableCell sx={{ border: '1px solid black' }}>Actions</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Document ID</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Changed By</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Change Type</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Previous Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>New Status</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Previous Handler</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>New Handler</TableCell>
+                        <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {data.map((entry) => (
                         <TableRow key={entry.id}>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.document_id}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.changed_by}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.change_type}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.previous_status}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.new_status}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.previous_handler}</TableCell>
-                            <TableCell sx={{ border: '1px solid black' }}>{entry.new_handler}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{entry.id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{entry.document_id}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{entry.changed_by}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{entry.change_type}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{entry.previous_status}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{entry.new_status}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{entry.previous_handler}</TableCell>
+                            <TableCell sx={{ border: '1px solid black', textAlign: 'center' }}>{entry.new_handler}</TableCell>
                             <TableCell sx={{ border: '1px solid black' }}>
-                                <IconButton onClick={() => handleEditClick(entry)} color="primary">
-                                    <Edit />
-                                </IconButton>
-                                <IconButton onClick={() => deleteHistory(entry.id)} color="error">
-                                    <Delete />
-                                </IconButton>
+                                <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>                                    
+                                    <IconButton onClick={() => handleEditClick(entry)} color="primary">
+                                        <Edit />
+                                    </IconButton>
+                                    <IconButton onClick={() => deleteHistory(entry.id)} color="error">
+                                        <Delete />
+                                    </IconButton>
+                                </div>
                             </TableCell>
                         </TableRow>
                     ))}
