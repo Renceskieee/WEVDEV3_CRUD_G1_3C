@@ -233,16 +233,30 @@ app.put('/document/:id', async (req, res) => {
 app.delete('/document/:id', async (req, res) => {
     const { id } = req.params;
 
-    const deleteQuery = 'DELETE FROM documents WHERE id = ?';
     try {
-        const [result] = await db.query(deleteQuery, [id]);
+        // Delete related notifications first
+        await db.query('DELETE FROM notifications WHERE document_id = ?', [id]);
+
+        // Delete related document attachments
+        await db.query('DELETE FROM document_attachments WHERE document_id = ?', [id]);
+
+        // Delete related document movements
+        await db.query('DELETE FROM document_movements WHERE document_id = ?', [id]);
+
+        // Delete related document history
+        await db.query('DELETE FROM document_history WHERE document_id = ?', [id]);
+
+        // Now delete the document itself
+        const [result] = await db.query('DELETE FROM documents WHERE id = ?', [id]);
+
         if (result.affectedRows === 0) {
-            return res.status(404).send({ error: 'Document not found' });
+            return res.status(404).json({ error: 'Document not found' });
         }
-        res.status(200).send({ message: 'Document deleted successfully' });
-    } catch (err) {
-        console.error('SQL Error:', err);
-        return res.status(500).send({ error: 'Internal server error' });
+
+        res.status(200).json({ message: 'Document and related records deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting document:', error);
+        res.status(500).json({ error: 'Failed to delete document' });
     }
 });
 
@@ -400,13 +414,14 @@ app.put('/document_movements/:id', async (req, res) => {
 app.delete('/document_movements/:id', async (req, res) => {
     const { id } = req.params;
 
-    const query = 'DELETE FROM document_movements WHERE id = ?';
     try {
-        const [result] = await db.query(query, [id]);
+        const [result] = await db.query('DELETE FROM document_movements WHERE id = ?', [id]);
+
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Movement not found' });
         }
-        res.status(200).json({ message: 'Movement deleted' });
+
+        res.status(200).json({ message: 'Movement deleted successfully' });
     } catch (error) {
         console.error('Error deleting movement:', error);
         res.status(500).json({ error: 'Failed to delete movement' });
@@ -628,8 +643,7 @@ app.delete('/notifications/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        const query = 'DELETE FROM notifications WHERE id = ?';
-        const [result] = await db.query(query, [id]);
+        const [result] = await db.query('DELETE FROM notifications WHERE id = ?', [id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Notification not found' });
@@ -771,12 +785,21 @@ app.delete('/users/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
-        const query = 'DELETE FROM users WHERE id = ?';
-        await db.query(query, [id]);
-        res.status(204).send(); // No content
-    } catch (err) {
-        console.error('Error deleting user:', err);
-        res.status(500).send({ message: 'Failed to delete user' });
+        // Handle dependencies first
+        await db.query('DELETE FROM document_movements WHERE from_user_id = ? OR to_user_id = ?', [id, id]);
+        await db.query('DELETE FROM notifications WHERE user_id = ?', [id]);
+
+        // Delete the user itself
+        const [result] = await db.query('DELETE FROM users WHERE id = ?', [id]);
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
     }
 });
 

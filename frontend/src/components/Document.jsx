@@ -309,7 +309,7 @@ const Dashboard = () => {
                 ) : (
                     <div>
                         <Button onClick={addDocument} variant="contained" color="error" sx={{ marginTop: '10px' }}>
-                            Add Notification
+                            Add Document
                         </Button>
                         <Button onClick={printTable} variant="contained" color="info" sx={{ marginTop: '10px', marginLeft: '10px' }} startIcon={<Print />}>
                             Print
