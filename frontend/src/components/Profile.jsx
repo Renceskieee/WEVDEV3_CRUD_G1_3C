@@ -18,7 +18,7 @@ import {
     Alert,
     IconButton,
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
+import { Edit, Delete, Print } from '@mui/icons-material';
 
 const Profile = () => {
     const [users, setUsers] = useState([]);
@@ -122,11 +122,69 @@ const Profile = () => {
         setSnackbar({ ...snackbar, open: false });
     };
 
+    const printTable = () => {
+        const printWindow = window.open('', '', 'width=800,height=600');
+    
+        const tableContent = `
+            <html>
+                <link rel="icon" type="image/png" href="./src/assets/EARIST_Logo.png" />
+                <head>
+                    <title>Group 1</title>
+                    <style>
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                        th { background-color: yellow; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Users</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><center>Name</center></th>
+                                <th><center>Username</center></th>
+                                <th><center>Email</center></th> 
+                                <th><center>Role</center></th>                                                          
+                                <th><center>Department ID</center></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => `
+                                <tr>
+                                    <td><center>${user.last_name}, ${user.first_name}</center></td>
+                                    <td><center>${user.username}</center></td>
+                                    <td><center>${user.email}</center></td>
+                                    <td><center>${user.role}</center></td>
+                                    <td><center>${user.department_id}</center></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </body>
+            </html>
+        `;
+    
+        printWindow.document.write(tableContent);
+        printWindow.document.close();
+        printWindow.print();
+    };    
+
     return (
         <Container>
             <Typography variant="h5" sx={{ margin: '20px 0' }}>
                 User Profiles
             </Typography>
+
+            {!editUser && (
+                <Button
+                    onClick={printTable}
+                    variant="contained"
+                    color="info"
+                    startIcon={<Print />}
+                >
+                    Print
+                </Button>
+            )}
 
             <div style={{ marginBottom: '20px' }}>
                 {editUser && (
